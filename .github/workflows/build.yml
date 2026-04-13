@@ -2,9 +2,14 @@ name: Build Windows EXE
 
 on: [push]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -16,3 +21,12 @@ jobs:
         with:
           name: rtmp-bench.exe
           path: dist/rtmp-bench.exe
+          
+      - name: Publier le fichier EXE (Release)
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        with:
+          tag_name: latest
+          name: Dernière Version Disponible
+          files: dist/rtmp-bench.exe
+          prerelease: true
